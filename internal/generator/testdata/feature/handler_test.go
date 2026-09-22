@@ -1,0 +1,88 @@
+package userprofile
+
+import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+)
+
+// newTestHandler returns a Handler wired to an in-memory repository.
+func newTestHandler() *Handler {
+	return NewHandler(NewService(NewInMemoryRepository()), nil)
+}
+
+// newTestMux returns a mux with the feature's routes mounted on it.
+func newTestMux() *http.ServeMux {
+	mux := http.NewServeMux()
+	newTestHandler().RegisterRoutes(mux)
+	return mux
+}
+
+func TestHandlerCreate(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		body       string
+		wantStatus int
+	}{
+		{name: "creates a user-profile", body: `{"name":"first"}`, wantStatus: http.StatusCreated},
+		{name: "rejects an empty name", body: `{"name":""}`, wantStatus: http.StatusUnprocessableEntity},
+		{name: "rejects malformed json", body: `{`, wantStatus: http.StatusBadRequest},
+		{name: "rejects unknown fields", body: `{"nmae":"typo"}`, wantStatus: http.StatusBadRequest},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			req := httptest.NewRequest(http.MethodPost, "/user-profile", strings.NewReader(test.body))
+			rec := httptest.NewRecorder()
+			newTestMux().ServeHTTP(rec, req)
+
+			if rec.Code != test.wantStatus {
+				t.Fatalf("status = %d, want %d (body: %s)", rec.Code, test.wantStatus, rec.Body.String())
+			}
+		})
+	}
+}
+
+func TestHandlerList(t *testing.T) {
+	t.Parallel()
+
+	mux := newTestMux()
+
+	// Seed one user-profile through the HTTP API so the test exercises the whole
+	// slice: routing, decoding, validation, storage and encoding.
+	create := httptest.NewRequest(http.MethodPost, "/user-profile", strings.NewReader(`{"name":"first"}`))
+	createRec := httptest.NewRecorder()
+	mux.ServeHTTP(createRec, create)
+
+	if createRec.Code != http.StatusCreated {
+		t.Fatalf("seed request status = %d, want %d", createRec.Code, http.StatusCreated)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/user-profile", nil)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
+	}
+
+	var got []UserProfileResponse
+	if err := json.Unmarshal(rec.Body.Bytes(), &got); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("len(response) = %d, want 1", len(got))
+	}
+	if got[0].Name != "first" {
+		t.Errorf("name = %q, want %q", got[0].Name, "first")
+	}
+	if got[0].ID == "" {
+		t.Error("id is empty, want the ID assigned by the repository")
+	}
+}

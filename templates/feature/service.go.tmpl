@@ -1,0 +1,47 @@
+package {{ .Package }}
+
+import (
+	"context"
+
+	"{{ .ValidatorImport }}"
+)
+
+// ValidationError reports that a request failed validation.
+//
+// The handler turns it into a 422 so callers get a field-level explanation
+// instead of a generic failure.
+type ValidationError struct {
+	// Errors lists every field that failed validation.
+	Errors validator.Errors
+}
+
+// Error implements the error interface.
+func (e *ValidationError) Error() string {
+	return "validation failed: " + e.Errors.Error()
+}
+
+// Service implements the business rules of the {{ .Name }} feature.
+type Service struct {
+	repo Repository
+}
+
+// NewService returns a Service backed by repo.
+func NewService(repo Repository) *Service {
+	return &Service{repo: repo}
+}
+
+// Create validates req and stores a new {{ .Ident }}.
+func (s *Service) Create(ctx context.Context, req Create{{ .Ident }}Request) ({{ .Ident }}, error) {
+	check := validator.New()
+	check.Required("name", req.Name)
+	if err := check.Err(); err != nil {
+		return {{ .Ident }}{}, &ValidationError{Errors: err.(validator.Errors)}
+	}
+
+	return s.repo.Create(ctx, {{ .Ident }}{Name: req.Name})
+}
+
+// List returns every stored {{ .Ident }}.
+func (s *Service) List(ctx context.Context) ([]{{ .Ident }}, error) {
+	return s.repo.List(ctx)
+}

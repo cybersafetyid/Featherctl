@@ -1,0 +1,42 @@
+# {{ .Name }}
+
+An HTTP service laid out with [vertical slice architecture](https://github.com/cybersafetyid/featherctl/blob/main/docs/architecture.md)
+and structured for use with [featherctl](https://github.com/cybersafetyid/featherctl).
+
+## Quick start
+
+```bash
+go run ./cmd/api          # listens on :8080, override with PORT
+curl localhost:8080       # add a feature first: feather new feature order
+```
+
+## Adding a feature
+
+```bash
+feather new feature order   # creates internal/features/order and wires it in
+go build ./...
+```
+
+## Layout
+
+```
+cmd/api                     entry point
+internal/features           one self-contained package per feature
+internal/platform/router    HTTP router; feature routes are registered here
+internal/platform/container dependency wiring for every feature
+internal/shared/httpx       shared HTTP request/response helpers
+internal/shared/validator   shared input validation helpers
+```
+
+## Development
+
+```bash
+make test     # run the test suite
+make lint     # run golangci-lint
+make fmt      # format the tree
+make run      # start the server
+```
+
+`feather.yaml` describes where featherctl is allowed to auto-wire generated
+code. `feather doctor` checks that the file, the markers it points at and the
+build itself are all still healthy.

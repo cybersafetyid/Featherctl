@@ -1,0 +1,38 @@
+# golangci-lint configuration for featherctl.
+#
+# Run with `make lint`.
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - errcheck
+    - errorlint
+    - gocritic
+    - gofmt
+    - goimports
+    - gosec
+    - govet
+    - ineffassign
+    - misspell
+    - prealloc
+    - revive
+    - staticcheck
+    - unconvert
+    - unused
+    - wastedassign
+    - whitespace
+
+issues:
+  exclude-rules:
+    # Tests legitimately repeat values and use long functions.
+    - path: _test\.go
+      linters:
+        - gocritic
+        - gosec
+        - dupl
+  max-issues-per-linter: 0
+  max-same-issues: 0

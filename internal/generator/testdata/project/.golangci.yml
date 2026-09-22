@@ -1,0 +1,30 @@
+# golangci-lint configuration for testapp.
+#
+# Install: https://golangci-lint.run/usage/install/
+# Run:     golangci-lint run
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - bodyclose
+    - errorlint
+    - exhaustive
+    - gocritic
+    - misspell
+    - prealloc
+    - revive
+    - unconvert
+    - wastedassign
+
+issues:
+  exclude-rules:
+    # Tests are allowed to use long table-driven functions.
+    - path: _test\.go
+      linters:
+        - gocritic

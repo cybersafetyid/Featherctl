@@ -1,0 +1,32 @@
+package {{ .Package }}
+
+// {{ .Ident }} is the domain model for the {{ .Name }} feature.
+type {{ .Ident }} struct {
+	// ID is assigned by the repository when the {{ .Name }} is stored.
+	ID string `json:"id"`
+	// Name is the human readable label of the {{ .Name }}.
+	Name string `json:"name"`
+}
+
+// Create{{ .Ident }}Request is the JSON payload accepted by the create
+// endpoint.
+type Create{{ .Ident }}Request struct {
+	Name string `json:"name"`
+}
+
+// {{ .Ident }}Response is the JSON representation of a {{ .Ident }}.
+type {{ .Ident }}Response struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// ToResponse maps the domain model onto its HTTP representation.
+//
+// Keeping the mapping in one place means the wire format can change without
+// touching the handler or the service.
+func (m {{ .Ident }}) ToResponse() {{ .Ident }}Response {
+	return {{ .Ident }}Response{
+		ID:   m.ID,
+		Name: m.Name,
+	}
+}

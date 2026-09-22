@@ -1,0 +1,30 @@
+# Development tasks for testapp.
+.PHONY: help run build test cover lint fmt tidy feature
+
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-8s\033[0m %s\n", $$1, $$2}'
+
+run: ## Run the API server
+	go run ./cmd/api
+
+build: ## Build the API binary into bin/api
+	go build -o bin/api ./cmd/api
+
+test: ## Run the test suite
+	go test ./...
+
+cover: ## Run the test suite with a coverage report
+	go test -coverprofile=coverage.out ./...
+	go tool cover -func=coverage.out | tail -1
+
+lint: ## Run golangci-lint
+	golangci-lint run
+
+fmt: ## Format the source tree
+	gofmt -l -w .
+
+tidy: ## Tidy the module
+	go mod tidy
+
+feature: ## Scaffold a new feature, e.g. make feature NAME=order
+	feather new feature $(NAME)

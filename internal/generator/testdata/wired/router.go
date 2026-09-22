@@ -1,0 +1,23 @@
+// Package router builds the HTTP router for testapp.
+package router
+
+import (
+	"net/http"
+
+	"example.com/testapp/internal/platform/container"
+)
+
+// New builds the application router with every feature mounted on it.
+//
+// Feature routes are added by `feather new feature`. It inserts each feature's
+// registration at the marker comment inside this function, so the marker must
+// stay where it is.
+func New(c *container.Container) *http.ServeMux {
+	mux := http.NewServeMux()
+
+	c.UserProfile.RegisterRoutes(mux)
+
+	// feather:register-routes (do not remove this comment)
+
+	return mux
+}

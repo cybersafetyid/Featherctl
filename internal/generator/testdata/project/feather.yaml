@@ -1,0 +1,30 @@
+# feather.yaml tells featherctl where it may auto-wire generated features.
+#
+# Every value below is the default used by `feather init`. Delete or change a
+# line and featherctl will honour it instead.
+version: 1
+
+# module is the Go import path of this project. Generated code uses it to build
+# import paths.
+module: example.com/testapp
+
+# features_dir holds one package per feature.
+features_dir: internal/features
+
+router:
+  # path is the file that registers feature routes on the HTTP router.
+  path: internal/platform/router/router.go
+  # marker is the comment that `feather new feature` inserts route
+  # registrations at. Removing it breaks auto-wiring; `feather doctor` warns
+  # when it is missing.
+  marker: "// feather:register-routes (do not remove this comment)"
+
+container:
+  # path is the file that constructs and holds feature dependencies.
+  path: internal/platform/container/container.go
+  # fields_marker is the comment that `feather new feature` inserts dependency
+  # fields at, inside the Container struct.
+  fields_marker: "// feather:container-fields (do not remove this comment)"
+  # wiring_marker is the comment that `feather new feature` inserts feature
+  # constructors at, inside the container constructor.
+  wiring_marker: "// feather:container-wiring (do not remove this comment)"

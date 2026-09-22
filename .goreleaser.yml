@@ -1,0 +1,78 @@
+# GoReleaser configuration for featherctl.
+#
+# Check it locally with:
+#   goreleaser release --snapshot --clean
+version: 2
+
+project_name: feather
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod edit -toolchain=none
+
+builds:
+  - id: feather
+    main: ./cmd/feather
+    binary: feather
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+
+archives:
+  - id: feather
+    formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+  groups:
+    - title: Features
+      regexp: "^feat"
+      order: 0
+    - title: Fixes
+      regexp: "^fix"
+      order: 1
+    - title: Other
+      order: 999
+
+release:
+  github:
+    owner: cybersafetyid
+    name: featherctl
+  draft: false
+  prerelease: auto
+  header: |
+    ## featherctl {{ .Tag }}
+
+    `go install github.com/cybersafetyid/featherctl/cmd/feather@{{ .Tag }}`
