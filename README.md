@@ -134,6 +134,8 @@ type Container struct {
   scaffolds like go-blueprint.
 - [Configuration](docs/configuration.md) — every option in `feather.yaml`,
   including how to move the markers.
+- [Releasing](docs/releasing.md) — how a version gets into `CHANGELOG.md`, and
+  how the tag, the release notes and the archive stay in step.
 
 ## Commands
 

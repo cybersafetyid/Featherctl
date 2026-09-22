@@ -47,7 +47,11 @@ func render(fsys fs.FS, name string, data any) ([]byte, error) {
 	if err := tmpl.Execute(&buf, data); err != nil {
 		return nil, fmt.Errorf("render template %s: %w", name, err)
 	}
-	return buf.Bytes(), nil
+
+	// A Windows checkout with core.autocrlf=true embeds CRLF templates. Generated
+	// Go code is always LF, whatever the host: gofmt, the golden fixtures and the
+	// AST wiring in internal/wiring all assume it.
+	return bytes.ReplaceAll(buf.Bytes(), []byte("\r\n"), []byte("\n")), nil
 }
 
 // writeSpec renders and writes one file, recording the result in report.

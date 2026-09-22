@@ -47,24 +47,19 @@ archives:
 checksum:
   name_template: checksums.txt
 
+# Release notes come from CHANGELOG.md: the release workflow passes
+# `--release-notes=release-notes.md`, the section `feather-release bump` wrote
+# for this tag. The block below only applies to a manual `goreleaser release`
+# without that flag, which is why it is deliberately plain.
 changelog:
-  sort: asc
   use: github
+  sort: asc
   filters:
     exclude:
       - "^docs:"
       - "^test:"
       - "^chore:"
       - "^ci:"
-  groups:
-    - title: Features
-      regexp: "^feat"
-      order: 0
-    - title: Fixes
-      regexp: "^fix"
-      order: 1
-    - title: Other
-      order: 999
 
 release:
   github:

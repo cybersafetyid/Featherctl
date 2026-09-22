@@ -28,7 +28,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Golden-file tests for every template, unit tests for wiring, config and
   filesystem helpers, and an end-to-end test that scaffolds a real project and
   runs `go build ./...` and `go test ./...` against it.
+- `feather release` tooling: `feather-release bump <version>` promotes
+  `[Unreleased]` in `CHANGELOG.md` into a dated section for the version, points
+  the comparison links at the new tag, commits it and creates the annotated tag;
+  `notes`, `verify` and `check` report on it. Run it with
+  `make bump RELEASE_VERSION=x.y.z`.
+- The release workflow refuses to publish a tag that `CHANGELOG.md` does not
+  document, and uses that section — not a generated commit list — as the release
+  notes.
 - GitHub Actions workflows for CI (lint, test, build on Linux, macOS and
   Windows) and releases via GoReleaser.
+
+### Fixed
+
+- Golden fixtures are no longer rewritten to CRLF on a Windows checkout, which
+  made the generator tests fail there; the repository now pins line endings in
+  `.gitattributes` and the generator always emits LF.
+- CI installs Go 1.22.12 instead of 1.22.0, whose macOS arm64 binaries are
+  killed by dyld with `missing LC_UUID load command` on macOS 14.4 and later.
 
 [Unreleased]: https://github.com/cybersafetyid/featherctl/commits/main

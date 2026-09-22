@@ -24,11 +24,25 @@ jobs:
       - name: Test before releasing
         run: go test ./...
 
+      # A tag that CHANGELOG.md does not document must not become a release:
+      # the file is the source of truth for what shipped, and `make bump`
+      # writes that section before it creates the tag.
+      - name: Require a CHANGELOG.md section for this tag
+        run: go run ./cmd/feather-release verify "$GITHUB_REF_NAME"
+
+      - name: Turn that section into the release notes
+        run: go run ./cmd/feather-release notes "$GITHUB_REF_NAME" > release-notes.md
+
+      - name: Show the release notes
+        run: cat release-notes.md
+
       - name: Release
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean
+          # --release-notes replaces GoReleaser's generated changelog, so the
+          # release page shows exactly the section a human curated.
+          args: release --clean --release-notes=release-notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

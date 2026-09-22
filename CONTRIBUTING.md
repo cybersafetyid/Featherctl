@@ -39,8 +39,8 @@ above 80%.
 - Trunk-based: branch off `main`, open a pull request against `main`, keep the
   branch short-lived.
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
-  — `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`, `ci:` — because the
-  changelog is generated from them.
+  — `feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`, `ci:` — so the
+  history reads well and every release note can be traced back to a commit.
 - Keep commits focused. One behaviour change per commit makes review and
   bisecting bearable.
 - Add an entry to the `[Unreleased]` section of [CHANGELOG.md](CHANGELOG.md) for
@@ -52,12 +52,15 @@ request. Everything must be green before merge.
 ## Project layout
 
 ```
-cmd/feather/            the binary
+cmd/feather/            the CLI users install
+cmd/feather-release/    maintainer tooling for cutting a release
 internal/cli/           cobra commands — flags in, report out
 internal/generator/     orchestration: templates, wiring, reports, doctor
 internal/wiring/        dst-based marker injection and removal
 internal/config/        feather.yaml schema, defaults, validation
 internal/fsutil/        safe writes and conflict detection
+internal/changelog/     Keep a Changelog parsing and editing
+internal/release/       the release workflow: changelog + commit + tag
 templates/              embedded Go templates (embed.FS)
 e2e/                    the end-to-end suite
 docs/                   user documentation
@@ -72,6 +75,15 @@ Ground rules:
   and never call `os.Exit`. They return values; the CLI renders them.
 - Every exported identifier has a doc comment.
 - No new dependency without a good reason, raised in the pull request.
+
+## Releasing
+
+Releases are cut with `make bump RELEASE_VERSION=x.y.z`, which records the
+version in `CHANGELOG.md`, commits it and creates the annotated tag; pushing the
+tag publishes it. A tag whose version `CHANGELOG.md` does not document fails the
+release workflow on purpose, and the section in the file becomes the release
+notes. The full procedure, including how to write the changelog and how to
+release by hand, lives in [docs/releasing.md](docs/releasing.md).
 
 ## Adding a template
 

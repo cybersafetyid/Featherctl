@@ -1,0 +1,21 @@
+# Keep every tracked text file byte-identical on Windows, macOS and Linux.
+#
+# The Go tests compare generated files against golden fixtures byte for byte.
+# Windows runners check the repository out with `core.autocrlf=true` by default,
+# which would silently turn the fixtures into CRLF and fail the comparison. The
+# rules below make the working tree LF everywhere, whatever the user's git
+# configuration says.
+
+* text=auto eol=lf
+
+# Golden fixtures are compared byte for byte: never touch their line endings.
+internal/generator/testdata/** -text
+
+# Binary-ish assets must never be normalised.
+*.png binary
+*.gif binary
+*.jpg binary
+*.ico binary
+*.zip binary
+*.gz binary
+*.exe binary
