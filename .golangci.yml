@@ -1,19 +1,21 @@
 # golangci-lint configuration for featherctl.
 #
-# Run with `make lint`.
+# This is the v2 configuration format, which needs golangci-lint 2.x. Run it
+# with `make lint`.
+version: "2"
+
 run:
-  timeout: 5m
   tests: true
 
 linters:
-  disable-all: true
+  # Start from nothing and name every linter we want, so a new golangci-lint
+  # release can never quietly add checks to the build.
+  default: none
   enable:
     - bodyclose
     - errcheck
     - errorlint
     - gocritic
-    - gofmt
-    - goimports
     - gosec
     - govet
     - ineffassign
@@ -25,14 +27,40 @@ linters:
     - unused
     - wastedassign
     - whitespace
+  settings:
+    errcheck:
+      # Writing the report is best effort: a closed pipe (`feather doctor | head`,
+      # a pager the user quit) must not turn a completed run into a failure.
+      # Errors that matter are returned, not printed.
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+    gosec:
+      excludes:
+        # Reading and writing paths the user chose is this tool's whole job;
+        # there is no untrusted third party whose taint could reach them.
+        - G304
+        - G703
+        # The release tool runs git with computed arguments and no shell, so
+        # there is no command line to inject into.
+        - G204
+  exclusions:
+    rules:
+      # Tests legitimately repeat values, exercise error paths and are allowed to
+      # be a little looser than the code they check.
+      - path: _test\.go
+        linters:
+          - gocritic
+          - gosec
+
+formatters:
+  # gofmt and goimports moved out of `linters` in v2. `golangci-lint fmt` applies
+  # them; `golangci-lint run` fails when a file is not formatted.
+  enable:
+    - gofmt
+    - goimports
 
 issues:
-  exclude-rules:
-    # Tests legitimately repeat values and use long functions.
-    - path: _test\.go
-      linters:
-        - gocritic
-        - gosec
-        - dupl
   max-issues-per-linter: 0
   max-same-issues: 0

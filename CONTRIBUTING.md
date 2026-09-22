@@ -14,8 +14,9 @@ go build ./...
 make test
 ```
 
-You need Go 1.22 or newer. `golangci-lint` and `goreleaser` are only needed for
-`make lint` and `make snapshot`.
+You need Go 1.27.1 or newer (the version in `go.mod`; CI installs exactly that
+one from `go-version-file`). `golangci-lint` 2.x and `goreleaser` are only
+needed for `make lint` and `make snapshot`.
 
 ## Running the tests
 

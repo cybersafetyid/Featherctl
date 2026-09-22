@@ -31,8 +31,10 @@ Feature "order" is ready. Run `go build ./...` to verify.
 go install github.com/cybersafetyid/featherctl/cmd/feather@latest
 ```
 
-Requires Go 1.22 or newer (the generated projects target `net/http`'s
-method-aware router).
+featherctl itself needs Go 1.27.1 or newer — it ships Go templates and rewrites
+Go source with `dave/dst`, and it is built and tested against the current
+release. The projects it *generates* stay compatible with Go 1.22, because they
+only use the standard library's method-aware `net/http` router.
 
 ## Quick start
 
@@ -153,6 +155,8 @@ three produce the same package, identifiers and route.
 
 - Go 1.22+ and `net/http` — the generated code uses the standard library's
   method-aware `ServeMux` and adds no third-party dependency to your project.
+  (A newer toolchain builds it just as well; this is the floor, not the
+  recommendation.)
 - Manual constructor injection — a `container.go` with a struct and a
   constructor, not a DI framework.
 - Three marker comments, which `feather init` writes and `feather doctor`

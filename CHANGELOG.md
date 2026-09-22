@@ -39,12 +39,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions workflows for CI (lint, test, build on Linux, macOS and
   Windows) and releases via GoReleaser.
 
+### Changed
+
+- featherctl now targets Go 1.27.1: `go.mod` declares it, CI installs that
+  version from `go-version-file` and tests the current stable release alongside
+  it. Generated projects still only require Go 1.22.
+- `golang.org/x/tools` moved to v0.50.0 (v0.25.0 does not compile with Go 1.25
+  and later) and `dave/dst` to v0.28.0.
+- The lint configuration was migrated to the golangci-lint 2.x format, and CI
+  uses golangci-lint v2.13.2 through `golangci-lint-action@v9`.
+
 ### Fixed
 
 - Golden fixtures are no longer rewritten to CRLF on a Windows checkout, which
   made the generator tests fail there; the repository now pins line endings in
   `.gitattributes` and the generator always emits LF.
-- CI installs Go 1.22.12 instead of 1.22.0, whose macOS arm64 binaries are
-  killed by dyld with `missing LC_UUID load command` on macOS 14.4 and later.
+- CI no longer runs the test binaries on macOS with a Go older than 1.24:
+  dyld on macOS 26 aborts them with `missing LC_UUID load command`. The macOS
+  job now runs the supported toolchain from `go.mod`, and the CI job names say
+  which Go they used.
 
 [Unreleased]: https://github.com/cybersafetyid/featherctl/commits/main

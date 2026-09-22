@@ -33,36 +33,46 @@ jobs:
       - name: go vet
         run: go vet ./...
 
+      # golangci-lint 2.x, configured by the version 2 .golangci.yml at the root.
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v1.64
-          args: --timeout=5m
+          version: v2.13.2
 
   test:
-    name: Test (${{ matrix.os }}, go ${{ matrix.go }})
+    name: Test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        # The module declares `go 1.22.0`, so the lowest toolchain we still
-        # support is a 1.22 patch release. It must not be exactly 1.22.0: Go
-        # 1.22.0 and 1.22.1 emit macOS arm64 binaries without the LC_UUID load
-        # command, and the dyld shipped with macOS 14.4+ kills them with
-        # "missing LC_UUID load command" and an abort trap. That bug is fixed in
-        # Go 1.22.3, so we test the newest 1.22 patch on all three platforms and
-        # the current stable toolchain once on Linux.
         os: [ubuntu-latest, macos-latest, windows-latest]
-        go: ["1.22.12"]
-        include:
-          - os: ubuntu-latest
-            go: stable
+    steps:
+      - uses: actions/checkout@v4
+
+      # go.mod is the single source of truth for the Go version we support.
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test
+        run: go test ./...
+
+  # macOS 26's dyld aborts binaries built by Go older than 1.24 (they lack the
+  # LC_UUID load command), which is one of the reasons the module targets a
+  # current toolchain instead of the oldest one that would compile.
+  test-next:
+    name: Test (ubuntu-latest, go stable)
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version: stable
           cache: true
 
       - name: Build

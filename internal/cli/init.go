@@ -103,8 +103,8 @@ func resolveModule(cmd *cobra.Command, flagValue string) (string, error) {
 	}
 
 	if !isTerminalReader(cmd.InOrStdin()) {
-		return "", errors.New("a Go module path is required\n" +
-			"  Pass --module github.com/you/myapp: feather never guesses an import path for you.")
+		return "", errors.New("a Go module path is required: pass --module github.com/you/myapp, " +
+			"because feather never guesses an import path for you")
 	}
 
 	answer, err := promptLine(cmd, "Go module path (for example github.com/you/myapp): ")

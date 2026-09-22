@@ -139,14 +139,14 @@ func markerChecks(cfg *config.Config) []Check {
 			continue
 		}
 
-		switch count := wiring.CountMarker(src, target.marker); {
-		case count == 1:
+		switch count := wiring.CountMarker(src, target.marker); count {
+		case 1:
 			checks = append(checks, Check{
 				Name:    "marker " + target.label,
 				Status:  StatusOK,
 				Message: fmt.Sprintf("found in %s", rel),
 			})
-		case count == 0:
+		case 0:
 			checks = append(checks, Check{
 				Name:    "marker " + target.label,
 				Status:  StatusWarn,
